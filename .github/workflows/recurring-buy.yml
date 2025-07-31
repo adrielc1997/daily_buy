@@ -2,12 +2,14 @@ name: Recurring BTC Spot Buy
 
 on:
   schedule:
-    - cron: '0 0 * * *'  # every day at 8am SGT
+    # This cron expression runs at 00:00 UTC, which is 8am Singapore time (+8).
+    # The comment is correct, but be aware that all cron times are UTC.
+    - cron: '0 0 * * *'
   workflow_dispatch:
 
 jobs:
   run-bot:
-    runs-on: ubuntu-latest
+    runs-on: [self-hosted, okx-static-ip]
 
     steps:
     - name: Checkout repo
@@ -18,7 +20,10 @@ jobs:
       with:
         python-version: '3.10'
 
-    - name: Install requests
+    - name: Install dependencies
+      # It's best practice to list your dependencies in a requirements.txt file.
+      # If 'requests' is your only dependency, this is fine, but for more
+      # it's better to use 'pip install -r requirements.txt'.
       run: pip install requests
 
     - name: Run Python script
