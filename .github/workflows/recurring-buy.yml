@@ -13,14 +13,21 @@ jobs:
     - name: Checkout repo
       uses: actions/checkout@v3
 
+    - name: Set up virtual environment
+      run: |
+        python3 -m venv .venv
+        source .venv/bin/activate
+        
     - name: Install dependencies
-      # This will install 'requests' for the system's default Python 3 (3.11 on your VM).
-      run: pip install requests
-
+      run: |
+        source .venv/bin/activate
+        pip install requests
+        
     - name: Run Python script
       env:
         OKX_API_KEY: ${{ secrets.OKX_API_KEY }}
         OKX_SECRET_KEY: ${{ secrets.OKX_SECRET_KEY }}
         OKX_PASSPHRASE: ${{ secrets.OKX_PASSPHRASE }}
-      # We now just use the default python3 command.
-      run: python3 buy.py
+      run: |
+        source .venv/bin/activate
+        python3 buy.py
