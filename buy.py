@@ -143,43 +143,43 @@ if __name__ == "__main__":
     initial_sgd_balance = get_specific_balance("SGD")
     print(f"Initial SGD balance: {initial_sgd_balance:.2f}")
 
-    # buy_amount = os.getenv("OKX_BUY_AMOUNT_SGD", "5")
-    # success_usdt, usdt_order_id = buy_usdt_with_sgd(buy_amount)
+    buy_amount = os.getenv("OKX_BUY_AMOUNT_SGD", "5")
+    success_usdt, usdt_order_id = buy_usdt_with_sgd(buy_amount)
 
-    # if success_usdt:
-    #     print("USDT buy order placed successfully.")
+    if success_usdt:
+        print("USDT buy order placed successfully.")
         
-    #     # Get final SGD balance for logging
-    #     final_sgd_balance = get_specific_balance("SGD")
-    #     print(f"Final SGD balance: {final_sgd_balance:.2f}")
+        # Get final SGD balance for logging
+        final_sgd_balance = get_specific_balance("SGD")
+        print(f"Final SGD balance: {final_sgd_balance:.2f}")
         
-    #     time.sleep(5) 
+        time.sleep(5) 
         
-    #     # Get initial Crypto Asset balance for logging
-    #     initial_crypto_asset_balance = get_specific_balance(CCY_CRYPTO_ASSET)
-    #     print(f"Initial {CCY_CRYPTO_ASSET} balance: {initial_crypto_asset_balance}")
+        # Get initial Crypto Asset balance for logging
+        initial_crypto_asset_balance = get_specific_balance(CCY_CRYPTO_ASSET)
+        print(f"Initial {CCY_CRYPTO_ASSET} balance: {initial_crypto_asset_balance}")
         
-    #     usdt_balance = get_specific_balance("USDT")
-    #     print(f"Available USDT balance: {usdt_balance}")
+        usdt_balance = get_specific_balance("USDT")
+        print(f"Available USDT balance: {usdt_balance}")
         
-    #     success_crypto, crypto_order_id = buy_crypto_with_usdt(usdt_balance)
+        success_crypto, crypto_order_id = buy_crypto_with_usdt(usdt_balance)
         
-    #     if success_crypto:
-    #         print(f"{CCY_CRYPTO_ASSET} buy order placed successfully.")
+        if success_crypto:
+            print(f"{CCY_CRYPTO_ASSET} buy order placed successfully.")
             
-    #         # --- GET FILLED AMOUNT ---
-    #         time.sleep(5) # Allow time for trade to settle
-    #         crypto_bought_sz = get_trade_details_by_order_id(crypto_order_id)
+            # --- GET FILLED AMOUNT ---
+            time.sleep(5) # Allow time for trade to settle
+            crypto_bought_sz = get_trade_details_by_order_id(crypto_order_id)
             
-    #         # Get final Crypto Asset balance for logging
-    #         final_crypto_asset_balance = get_specific_balance(CCY_CRYPTO_ASSET)
-    #         print(f"Final {CCY_CRYPTO_ASSET} balance: {final_crypto_asset_balance}")
+            # Get final Crypto Asset balance for logging
+            final_crypto_asset_balance = get_specific_balance(CCY_CRYPTO_ASSET)
+            print(f"Final {CCY_CRYPTO_ASSET} balance: {final_crypto_asset_balance}")
             
-    #         print("\n--- Summary ---")
-    #         print(f"Amount of {CCY_CRYPTO_ASSET} bought: {crypto_bought_sz}")
-    #         print(f"Old {CCY_CRYPTO_ASSET} balance: {initial_crypto_asset_balance}")
-    #         print(f"New {CCY_CRYPTO_ASSET} balance: {final_crypto_asset_balance}")
-    #     else:
-    #         print(f"Aborting {CCY_CRYPTO_ASSET} buy since USDT buy failed. Fix needed.")
-    # else:
-    #     print(f"Aborting {CCY_CRYPTO_ASSET} buy since USDT buy failed. Fix needed.")
+            print("\n--- Summary ---")
+            print(f"Amount of {CCY_CRYPTO_ASSET} bought: {crypto_bought_sz}")
+            print(f"Old {CCY_CRYPTO_ASSET} balance: {initial_crypto_asset_balance}")
+            print(f"New {CCY_CRYPTO_ASSET} balance: {final_crypto_asset_balance}")
+        else:
+            print(f"Aborting {CCY_CRYPTO_ASSET} buy since USDT buy failed. Fix needed.")
+    else:
+        print(f"Aborting {CCY_CRYPTO_ASSET} buy since USDT buy failed. Fix needed.")
