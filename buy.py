@@ -5,11 +5,6 @@ import base64
 import json
 import os
 import datetime
-from dotenv import load_dotenv # Added for local testing
-
-# Load environment variables from a .env file (for local testing)
-load_dotenv()
-
 
 BASE_URL = "https://my.okx.com"  # Ensure this is the correct API URL
 

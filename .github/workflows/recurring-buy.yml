@@ -1,4 +1,4 @@
-name: Recurring BTC Spot Buy
+name: Recurring Crypto Spot Buy
 
 on:
   schedule:
