@@ -1,0 +1,5 @@
+# Python virtual environment
+venv/
+
+# Git bare repository
+daily_buy.git/
