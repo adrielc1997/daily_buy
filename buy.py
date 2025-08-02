@@ -10,14 +10,14 @@ from dotenv import load_dotenv # Added for local testing
 # Load environment variables from a .env file (for local testing)
 load_dotenv()
 
-API_KEY = os.getenv("OKX_API_KEY")
-SECRET_KEY = os.getenv("OKX_SECRET_KEY")
-PASSPHRASE = os.getenv("OKX_PASSPHRASE")
 
 BASE_URL = "https://my.okx.com"  # Ensure this is the correct API URL
 
 # --- Environment Variables for Crypto Asset Privacy ---
 # These will be read from your .env file locally and GitHub Secrets in production
+API_KEY = os.getenv("OKX_API_KEY")
+SECRET_KEY = os.getenv("OKX_SECRET_KEY")
+PASSPHRASE = os.getenv("OKX_PASSPHRASE")
 # The actual cryptocurrency symbol (e.g., "BTC", "ETH")
 CCY_CRYPTO_ASSET = os.getenv("OKX_CCY_CRYPTO_ASSET")
 # The instrument ID for trading the crypto asset against USDT (e.g., "BTC-USDT", "ETH-USDT")
