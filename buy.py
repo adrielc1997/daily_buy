@@ -5,12 +5,24 @@ import base64
 import json
 import os
 import datetime
+from dotenv import load_dotenv # Added for local testing
+
+# Load environment variables from a .env file (for local testing)
+load_dotenv()
 
 API_KEY = os.getenv("OKX_API_KEY")
 SECRET_KEY = os.getenv("OKX_SECRET_KEY")
 PASSPHRASE = os.getenv("OKX_PASSPHRASE")
 
 BASE_URL = "https://my.okx.com"  # Ensure this is the correct API URL
+
+# --- Environment Variables for Crypto Asset Privacy ---
+# These will be read from your .env file locally and GitHub Secrets in production
+# The actual cryptocurrency symbol (e.g., "BTC", "ETH")
+CCY_CRYPTO_ASSET = os.getenv("OKX_CCY_CRYPTO_ASSET")
+# The instrument ID for trading the crypto asset against USDT (e.g., "BTC-USDT", "ETH-USDT")
+INST_ID_CRYPTO_USDT = os.getenv("OKX_INST_ID_CRYPTO_USDT")
+
 
 def get_okx_server_time():
     """Fetch OKX server time in ISO 8601 format with milliseconds."""
@@ -111,20 +123,20 @@ def buy_usdt_with_sgd(amount_sgd):
         print("Failed to place USDT buy order.")
         return False, None
 
-def buy_btc_with_usdt(amount_usdt):
-    """Buy BTC using USDT via market order."""
+def buy_crypto_with_usdt(amount_usdt):
+    """Buy a crypto asset using USDT via market order."""
     if amount_usdt <= 0:
-        print("No USDT available to buy BTC")
+        print(f"No USDT available to buy {CCY_CRYPTO_ASSET}")
         return False, None
     amount_str = str(round(amount_usdt, 6))
-    print(f"Buying BTC with USDT amount: {amount_str}")
-    status, resp = place_order("BTC-USDT", "buy", "USDT", amount_str)
-    print(f"BTC Buy Status: {status}")
-    print(f"BTC Buy Response: {resp}")
+    print(f"Buying {CCY_CRYPTO_ASSET} with USDT amount: {amount_str}")
+    status, resp = place_order(INST_ID_CRYPTO_USDT, "buy", "USDT", amount_str)
+    print(f"{CCY_CRYPTO_ASSET} Buy Status: {status}")
+    print(f"{CCY_CRYPTO_ASSET} Buy Response: {resp}")
     if status == 200 and resp and resp.get("code") == "0":
         return True, resp['data'][0]['ordId']
     else:
-        print("Failed to place BTC buy order.")
+        print(f"Failed to place {CCY_CRYPTO_ASSET} buy order.")
         return False, None
 
 if __name__ == "__main__":
@@ -136,43 +148,43 @@ if __name__ == "__main__":
     initial_sgd_balance = get_specific_balance("SGD")
     print(f"Initial SGD balance: {initial_sgd_balance:.2f}")
 
-    buy_amount = os.getenv("OKX_BUY_AMOUNT_SGD", "80")
-    success_usdt, usdt_order_id = buy_usdt_with_sgd(buy_amount)
+    # buy_amount = os.getenv("OKX_BUY_AMOUNT_SGD", "5")
+    # success_usdt, usdt_order_id = buy_usdt_with_sgd(buy_amount)
 
-    if success_usdt:
-        print("USDT buy order placed successfully.")
+    # if success_usdt:
+    #     print("USDT buy order placed successfully.")
         
-        # Get final SGD balance for logging
-        final_sgd_balance = get_specific_balance("SGD")
-        print(f"Final SGD balance: {final_sgd_balance:.2f}")
+    #     # Get final SGD balance for logging
+    #     final_sgd_balance = get_specific_balance("SGD")
+    #     print(f"Final SGD balance: {final_sgd_balance:.2f}")
         
-        time.sleep(5) 
+    #     time.sleep(5) 
         
-        # Get initial BTC balance for logging
-        initial_btc_balance = get_specific_balance("BTC")
-        print(f"Initial BTC balance: {initial_btc_balance}")
+    #     # Get initial Crypto Asset balance for logging
+    #     initial_crypto_asset_balance = get_specific_balance(CCY_CRYPTO_ASSET)
+    #     print(f"Initial {CCY_CRYPTO_ASSET} balance: {initial_crypto_asset_balance}")
         
-        usdt_balance = get_specific_balance("USDT")
-        print(f"Available USDT balance: {usdt_balance}")
+    #     usdt_balance = get_specific_balance("USDT")
+    #     print(f"Available USDT balance: {usdt_balance}")
         
-        success_btc, btc_order_id = buy_btc_with_usdt(usdt_balance)
+    #     success_crypto, crypto_order_id = buy_crypto_with_usdt(usdt_balance)
         
-        if success_btc:
-            print("BTC buy order placed successfully.")
+    #     if success_crypto:
+    #         print(f"{CCY_CRYPTO_ASSET} buy order placed successfully.")
             
-            # --- GET FILLED AMOUNT ---
-            time.sleep(5) # Allow time for trade to settle
-            btc_bought_sz = get_trade_details_by_order_id(btc_order_id)
+    #         # --- GET FILLED AMOUNT ---
+    #         time.sleep(5) # Allow time for trade to settle
+    #         crypto_bought_sz = get_trade_details_by_order_id(crypto_order_id)
             
-            # Get final BTC balance for logging
-            final_btc_balance = get_specific_balance("BTC")
-            print(f"Final BTC balance: {final_btc_balance}")
+    #         # Get final Crypto Asset balance for logging
+    #         final_crypto_asset_balance = get_specific_balance(CCY_CRYPTO_ASSET)
+    #         print(f"Final {CCY_CRYPTO_ASSET} balance: {final_crypto_asset_balance}")
             
-            print("\n--- Summary ---")
-            print(f"Amount of BTC bought: {btc_bought_sz}")
-            print(f"Old BTC balance: {initial_btc_balance}")
-            print(f"New BTC balance: {final_btc_balance}")
-        else:
-            print("Aborting BTC buy since USDT buy failed. Fix needed.")
-    else:
-        print("Aborting BTC buy since USDT buy failed. Fix needed.")
+    #         print("\n--- Summary ---")
+    #         print(f"Amount of {CCY_CRYPTO_ASSET} bought: {crypto_bought_sz}")
+    #         print(f"Old {CCY_CRYPTO_ASSET} balance: {initial_crypto_asset_balance}")
+    #         print(f"New {CCY_CRYPTO_ASSET} balance: {final_crypto_asset_balance}")
+    #     else:
+    #         print(f"Aborting {CCY_CRYPTO_ASSET} buy since USDT buy failed. Fix needed.")
+    # else:
+    #     print(f"Aborting {CCY_CRYPTO_ASSET} buy since USDT buy failed. Fix needed.")
