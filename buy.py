@@ -136,43 +136,43 @@ if __name__ == "__main__":
     initial_sgd_balance = get_specific_balance("SGD")
     print(f"Initial SGD balance: {initial_sgd_balance:.2f}")
 
-    # buy_amount = os.getenv("OKX_BUY_AMOUNT_SGD", "80")
-    # success_usdt, usdt_order_id = buy_usdt_with_sgd(buy_amount)
+    buy_amount = os.getenv("OKX_BUY_AMOUNT_SGD", "80")
+    success_usdt, usdt_order_id = buy_usdt_with_sgd(buy_amount)
 
-    # if success_usdt:
-    #     print("USDT buy order placed successfully.")
+    if success_usdt:
+        print("USDT buy order placed successfully.")
         
-    #     # Get final SGD balance for logging
-    #     final_sgd_balance = get_specific_balance("SGD")
-    #     print(f"Final SGD balance: {final_sgd_balance:.2f}")
+        # Get final SGD balance for logging
+        final_sgd_balance = get_specific_balance("SGD")
+        print(f"Final SGD balance: {final_sgd_balance:.2f}")
         
-    #     time.sleep(5) 
+        time.sleep(5) 
         
-    #     # Get initial BTC balance for logging
-    #     initial_btc_balance = get_specific_balance("BTC")
-    #     print(f"Initial BTC balance: {initial_btc_balance}")
+        # Get initial BTC balance for logging
+        initial_btc_balance = get_specific_balance("BTC")
+        print(f"Initial BTC balance: {initial_btc_balance}")
         
-    #     usdt_balance = get_specific_balance("USDT")
-    #     print(f"Available USDT balance: {usdt_balance}")
+        usdt_balance = get_specific_balance("USDT")
+        print(f"Available USDT balance: {usdt_balance}")
         
-    #     success_btc, btc_order_id = buy_btc_with_usdt(usdt_balance)
+        success_btc, btc_order_id = buy_btc_with_usdt(usdt_balance)
         
-    #     if success_btc:
-    #         print("BTC buy order placed successfully.")
+        if success_btc:
+            print("BTC buy order placed successfully.")
             
-    #         # --- GET FILLED AMOUNT ---
-    #         time.sleep(5) # Allow time for trade to settle
-    #         btc_bought_sz = get_trade_details_by_order_id(btc_order_id)
+            # --- GET FILLED AMOUNT ---
+            time.sleep(5) # Allow time for trade to settle
+            btc_bought_sz = get_trade_details_by_order_id(btc_order_id)
             
-    #         # Get final BTC balance for logging
-    #         final_btc_balance = get_specific_balance("BTC")
-    #         print(f"Final BTC balance: {final_btc_balance}")
+            # Get final BTC balance for logging
+            final_btc_balance = get_specific_balance("BTC")
+            print(f"Final BTC balance: {final_btc_balance}")
             
-    #         print("\n--- Summary ---")
-    #         print(f"Amount of BTC bought: {btc_bought_sz}")
-    #         print(f"Old BTC balance: {initial_btc_balance}")
-    #         print(f"New BTC balance: {final_btc_balance}")
-    #     else:
-    #         print("Aborting BTC buy since USDT buy failed. Fix needed.")
-    # else:
-    #     print("Aborting BTC buy since USDT buy failed. Fix needed.")
+            print("\n--- Summary ---")
+            print(f"Amount of BTC bought: {btc_bought_sz}")
+            print(f"Old BTC balance: {initial_btc_balance}")
+            print(f"New BTC balance: {final_btc_balance}")
+        else:
+            print("Aborting BTC buy since USDT buy failed. Fix needed.")
+    else:
+        print("Aborting BTC buy since USDT buy failed. Fix needed.")
