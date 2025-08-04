@@ -29,6 +29,8 @@ jobs:
         OKX_SECRET_KEY: ${{ secrets.OKX_SECRET_KEY }}
         OKX_PASSPHRASE: ${{ secrets.OKX_PASSPHRASE }}
         OKX_BUY_AMOUNT_SGD: ${{ secrets.OKX_BUY_AMOUNT_SGD }}
+        OKX_CCY_CRYPTO_ASSET: ${{ secrets.OKX_CCY_CRYPTO_ASSET }} 
+        OKX_INST_ID_CRYPTO_USDT: ${{ secrets.OKX_INST_ID_CRYPTO_USDT }}
       run: |
         source .venv/bin/activate
         python3 buy.py
