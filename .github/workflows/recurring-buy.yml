@@ -21,7 +21,7 @@ jobs:
     - name: Install dependencies
       run: |
         source .venv/bin/activate
-        pip install requests
+        pip install requests gspread oauth2client
         
     - name: Run Python script
       env:
@@ -34,3 +34,14 @@ jobs:
       run: |
         source .venv/bin/activate
         python3 buy.py
+
+    - name: Upload trade data to Google Sheet
+      env:
+        GCP_SERVICE_ACCOUNT: ${{ secrets.GOOGLE_SERVICE_ACCOUNT_CREDENTIALS }}
+        GOOGLE_SHEET_KEY: ${{ secrets.GOOGLE_SHEET_KEY }} # Add this as a secret in GitHub
+      run: |
+        source .venv/bin/activate
+        # Create the credentials file from the GitHub secret
+        echo "$GCP_SERVICE_ACCOUNT" > client_secret.json
+        # Run the script to upload the trade data
+        python3 log.py
