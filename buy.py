@@ -100,11 +100,17 @@ def get_trade_details_by_order_id(ord_id):
         if response.status_code == 200 and response.json().get("code") == "0":
             data = response.json().get("data", [])
             if data:
-                return data[0].get("sz", "0") # sz is the filled size
-        return "0"
+                trade_fill = data[0]
+                return {
+                    "sz": trade_fill.get("sz", "0"),
+                    "px": trade_fill.get("px", "0"),
+                    "fee": trade_fill.get("fee", "0"),
+                    "feeCcy": trade_fill.get("feeCcy", "")
+                }
+        return {"sz": "0", "px": "0", "fee": "0", "feeCcy": ""}
     except Exception as e:
         print(f"Error fetching trade details: {e}")
-        return "0"
+        return {"sz": "0", "px": "0", "fee": "0", "feeCcy": ""}
 
 def buy_usdt_with_sgd(amount_sgd):
     """Buy USDT using SGD via market order."""
@@ -157,7 +163,6 @@ if __name__ == "__main__":
         
         # Get initial Crypto Asset balance for logging
         initial_crypto_asset_balance = get_specific_balance(CCY_CRYPTO_ASSET)
-        print(f"Initial {CCY_CRYPTO_ASSET} balance: {initial_crypto_asset_balance}")
         
         usdt_balance = get_specific_balance("USDT")
         print(f"Available USDT balance: {usdt_balance}")
@@ -165,20 +170,33 @@ if __name__ == "__main__":
         success_crypto, crypto_order_id = buy_crypto_with_usdt(usdt_balance)
         
         if success_crypto:
-            print(f"{CCY_CRYPTO_ASSET} buy order placed successfully.")
+            print("Crypto buy order placed successfully.")
             
             # --- GET FILLED AMOUNT ---
             time.sleep(5) # Allow time for trade to settle
-            crypto_bought_sz = get_trade_details_by_order_id(crypto_order_id)
+            trade_fill_details = get_trade_details_by_order_id(crypto_order_id)
             
-            # Get final Crypto Asset balance for logging
-            final_crypto_asset_balance = get_specific_balance(CCY_CRYPTO_ASSET)
-            print(f"Final {CCY_CRYPTO_ASSET} balance: {final_crypto_asset_balance}")
+            # Extract the necessary values from the trade fill details
+            trade_amount = trade_fill_details.get("sz")
+            trade_price = trade_fill_details.get("px")
+            fee_cost = trade_fill_details.get("fee")
+            fee_currency = trade_fill_details.get("feeCcy")
+            total_usd_cost = usdt_balance # This is the available USDT used for the trade
             
-            print("\n--- Summary ---")
-            print(f"Amount of {CCY_CRYPTO_ASSET} bought: {crypto_bought_sz}")
-            print(f"Old {CCY_CRYPTO_ASSET} balance: {initial_crypto_asset_balance}")
-            print(f"New {CCY_CRYPTO_ASSET} balance: {final_crypto_asset_balance}")
+            # --- Prepare and save the requested trade data to a file ---
+            trade_data = {
+                "timestamp": now_sgt.strftime('%Y-%m-%d %H:%M:%S'),
+                "trading_pair": INST_ID_CRYPTO_USDT,
+                "side": "BUY",
+                "trade_price": trade_price,
+                "trade_amount": trade_amount,
+                "total_usd_cost": total_usd_cost,
+                "fee_cost": fee_cost,
+                "fee_currency": fee_currency
+            }
+            with open("trade_log.json", "w") as f:
+                json.dump(trade_data, f, indent=4)
+            print("Trade data saved to trade_log.json")
         else:
             print(f"Aborting {CCY_CRYPTO_ASSET} buy since USDT buy failed. Fix needed.")
     else:

@@ -3,3 +3,6 @@ venv/
 
 # Git bare repository
 daily_buy.git/
+
+# Ignore trade log file
+trade_log.json
