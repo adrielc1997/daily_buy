@@ -89,7 +89,6 @@ def get_specific_balance(ccy):
         print(f"Error fetching balance: {e}")
         return 0.0
 
-# --- NEW FUNCTION ---
 def get_trade_details_by_order_id(ord_id):
     """Fetch trade details by order ID to get the filled amount."""
     endpoint = "/api/v5/trade/fills"
@@ -112,6 +111,22 @@ def get_trade_details_by_order_id(ord_id):
         print(f"Error fetching trade details: {e}")
         return {"sz": "0", "px": "0", "fee": "0", "feeCcy": ""}
 
+def get_order_status(instId, ord_id):
+    """Check the status of a specific order by its order ID."""
+    endpoint = "/api/v5/trade/order"
+    url = f"{BASE_URL}{endpoint}?instId={instId}&ordId={ord_id}"
+    headers = get_okx_headers("GET", f"{endpoint}?instId={instId}&ordId={ord_id}")
+    try:
+        response = requests.get(url, headers=headers)
+        if response.status_code == 200 and response.json().get("code") == "0":
+            data = response.json().get("data", [])
+            if data:
+                return data[0].get("state", "unknown")
+        return "unknown"
+    except Exception as e:
+        print(f"Error fetching order status: {e}")
+        return "unknown"
+    
 def buy_usdt_with_sgd(amount_sgd):
     """Buy USDT using SGD via market order."""
     print(f"Buying USDT with SGD amount: {amount_sgd}")
@@ -155,49 +170,65 @@ if __name__ == "__main__":
     if success_usdt:
         print("USDT buy order placed successfully.")
         
-        # Get final SGD balance for logging
-        final_sgd_balance = get_specific_balance("SGD")
-        print(f"Final SGD balance: {final_sgd_balance:.2f}")
-        
-        time.sleep(5) 
-        
-        # Get initial Crypto Asset balance for logging
-        initial_crypto_asset_balance = get_specific_balance(CCY_CRYPTO_ASSET)
-        
-        usdt_balance = get_specific_balance("USDT")
-        print(f"Available USDT balance: {usdt_balance}")
-        
-        success_crypto, crypto_order_id = buy_crypto_with_usdt(usdt_balance)
-        
-        if success_crypto:
-            print("Crypto buy order placed successfully.")
+        # Poll for the USDT order to be filled
+        print("Waiting for USDT order to be filled...")
+        usdt_order_status = "live"
+        while usdt_order_status not in ["filled", "partially_filled", "canceled", "failed"]:
+            time.sleep(3)  # Wait for 3 seconds before checking again
+            usdt_order_status = get_order_status("USDT-SGD", usdt_order_id)
+            print(f"Current USDT order status: {usdt_order_status}")
+
+        if usdt_order_status == "filled" or usdt_order_status == "partially_filled":
+            print("USDT order filled successfully. Proceeding with crypto purchase.")
+            final_sgd_balance = get_specific_balance("SGD")
+            print(f"Final SGD balance: {final_sgd_balance:.2f}")
             
-            # --- GET FILLED AMOUNT ---
-            time.sleep(5) # Allow time for trade to settle
-            trade_fill_details = get_trade_details_by_order_id(crypto_order_id)
+            initial_crypto_asset_balance = get_specific_balance(CCY_CRYPTO_ASSET)
             
-            # Extract the necessary values from the trade fill details
-            trade_amount = trade_fill_details.get("sz")
-            trade_price = trade_fill_details.get("px")
-            fee_cost = trade_fill_details.get("fee")
-            fee_currency = trade_fill_details.get("feeCcy")
-            total_usd_cost = usdt_balance # This is the available USDT used for the trade
+            usdt_balance = get_specific_balance("USDT")
+            print(f"Available USDT balance for crypto purchase: {usdt_balance}")
             
-            # --- Prepare and save the requested trade data to a file ---
-            trade_data = {
-                "timestamp": now_sgt.strftime('%Y-%m-%d %H:%M:%S'),
-                "trading_pair": INST_ID_CRYPTO_USDT,
-                "side": "BUY",
-                "trade_price": trade_price,
-                "trade_amount": trade_amount,
-                "total_usd_cost": total_usd_cost,
-                "fee_cost": fee_cost,
-                "fee_currency": fee_currency
-            }
-            with open("trade_log.json", "w") as f:
-                json.dump(trade_data, f, indent=4)
-            print("Trade data saved to trade_log.json")
+            success_crypto, crypto_order_id = buy_crypto_with_usdt(usdt_balance)
+            
+            if success_crypto:
+                print("Crypto buy order placed successfully.")
+                
+                # --- POLLING LOGIC FOR CRYPTO ORDER ---
+                print("Waiting for crypto order to be filled...")
+                crypto_order_status = "live"
+                while crypto_order_status not in ["filled", "partially_filled", "canceled", "failed"]:
+                    time.sleep(3)  # Wait for 3 seconds before checking again
+                    crypto_order_status = get_order_status(INST_ID_CRYPTO_USDT, crypto_order_id)
+                    print(f"Current crypto order status: {crypto_order_status}")
+                
+                if crypto_order_status == "filled" or crypto_order_status == "partially_filled":
+                    print("Crypto order filled successfully. Fetching trade details.")
+                    trade_fill_details = get_trade_details_by_order_id(crypto_order_id)
+                    
+                    trade_amount = trade_fill_details.get("sz")
+                    trade_price = trade_fill_details.get("px")
+                    fee_cost = abs(float(trade_fill_details.get("fee", "0")))
+                    fee_currency = trade_fill_details.get("feeCcy")
+                    total_usd_cost = usdt_balance
+                    
+                    trade_data = {
+                        "timestamp": now_sgt.strftime('%Y-%m-%d %H:%M:%S'),
+                        "trading_pair": INST_ID_CRYPTO_USDT,
+                        "side": "BUY",
+                        "trade_price": trade_price,
+                        "trade_amount": trade_amount,
+                        "total_usd_cost": total_usd_cost,
+                        "fee_cost": fee_cost,
+                        "fee_currency": fee_currency
+                    }
+                    with open("trade_log.json", "w") as f:
+                        json.dump(trade_data, f, indent=4)
+                    print("Trade data saved to trade_log.json")
+                else:
+                    print(f"Crypto order was not filled. Final status: {crypto_order_status}")
+            else:
+                print(f"Aborting {CCY_CRYPTO_ASSET} buy since USDT buy failed. Fix needed.")
         else:
-            print(f"Aborting {CCY_CRYPTO_ASSET} buy since USDT buy failed. Fix needed.")
+            print(f"USDT order was not filled. Final status: {usdt_order_status}")
     else:
         print(f"Aborting {CCY_CRYPTO_ASSET} buy since USDT buy failed. Fix needed.")
