@@ -96,20 +96,24 @@ def get_trade_details_by_order_id(ord_id):
     headers = get_okx_headers("GET", f"{endpoint}?ordId={ord_id}")
     try:
         response = requests.get(url, headers=headers)
+        # --- NEW: Print the raw response for debugging ---
+        print(f"Raw trade details API response: {response.text}")
         if response.status_code == 200 and response.json().get("code") == "0":
             data = response.json().get("data", [])
             if data:
                 trade_fill = data[0]
+                # --- NEW: Ensure we return float values, and default to 0 if not found ---
                 return {
-                    "sz": trade_fill.get("sz", "0"),
-                    "px": trade_fill.get("px", "0"),
-                    "fee": trade_fill.get("fee", "0"),
+                    "sz": float(trade_fill.get("sz", "0")),
+                    "px": float(trade_fill.get("px", "0")),
+                    "fee": float(trade_fill.get("fee", "0")),
                     "feeCcy": trade_fill.get("feeCcy", "")
                 }
-        return {"sz": "0", "px": "0", "fee": "0", "feeCcy": ""}
+        return {"sz": 0, "px": 0, "fee": 0, "feeCcy": ""}
     except Exception as e:
         print(f"Error fetching trade details: {e}")
-        return {"sz": "0", "px": "0", "fee": "0", "feeCcy": ""}
+        return {"sz": 0, "px": 0, "fee": 0, "feeCcy": ""}
+
 
 def get_order_status(instId, ord_id):
     """Check the status of a specific order by its order ID."""
@@ -232,6 +236,7 @@ if __name__ == "__main__":
                         "final_crypto_asset_balance": get_specific_balance(CCY_CRYPTO_ASSET),
                         "final_sgd_balance": final_sgd_balance
                     }
+                    print("trade_data dictionary to be saved:", trade_data)
                     with open("trade_log.json", "w") as f:
                         json.dump(trade_data, f, indent=4)
                     print("Trade data saved to trade_log.json")
