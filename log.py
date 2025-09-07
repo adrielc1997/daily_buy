@@ -32,6 +32,9 @@ def upload_to_gsheet():
         with open(JSON_FILE, 'r') as f:
             trade_data = json.load(f)
         
+        # --- NEW: Print the entire dictionary for debugging ---
+        print("DEBUGGING: Contents of trade_log.json:", trade_data)
+        
         print(f"Successfully read data from {JSON_FILE}.")
 
         # Step 2: Authenticate with Google Sheets API using the service account
