@@ -219,6 +219,7 @@ if __name__ == "__main__":
                     while (trade_fill_details["sz"] == 0.0 or trade_fill_details["px"] == 0.0) and polling_attempts < max_polling_attempts:
                         time.sleep(3)
                         trade_fill_details = get_trade_details_by_order_id(crypto_order_id)
+                        print(trade_fill_details)
                         print(f"Polling for trade details... Amount: {trade_fill_details.get('sz')}, Price: {trade_fill_details.get('px')} (Attempt {polling_attempts + 1}/{max_polling_attempts})")
                         polling_attempts += 1
 
