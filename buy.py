@@ -212,31 +212,59 @@ if __name__ == "__main__":
                 # --- END OF NEW POLLING LOGIC ---
                 
                 if crypto_order_status == "filled" or crypto_order_status == "partially_filled":
-                    print("Crypto order filled successfully. Fetching trade details.")
-                    trade_fill_details = get_trade_details_by_order_id(crypto_order_id)
-                    
-                    trade_amount = trade_fill_details.get("sz")
-                    trade_price = trade_fill_details.get("px")
-                    fee_cost = abs(float(trade_fill_details.get("fee", "0")))
-                    fee_currency = trade_fill_details.get("feeCcy")
-                    total_usd_cost = usdt_balance
-                    
-                    trade_data = {
-                        "timestamp": now_sgt.strftime('%Y-%m-%d %H:%M:%S'),
-                        "trading_pair": INST_ID_CRYPTO_USDT,
-                        "side": "BUY",
-                        "trade_price": trade_price,
-                        "trade_amount": trade_amount,
-                        "total_usd_cost": total_usd_cost,
-                        "fee_cost": fee_cost,
-                        "fee_currency": fee_currency,
-                        "initial_crypto_asset_balance": initial_crypto_asset_balance,
-                        "final_crypto_asset_balance": get_specific_balance(CCY_CRYPTO_ASSET),
-                        "final_sgd_balance": final_sgd_balance
-                    }
-                    with open("trade_log.json", "w") as f:
-                        json.dump(trade_data, f, indent=4)
-                    print("Trade data saved to trade_log.json")
+                    # --- NEW POLLING LOOP FOR TRADE DETAILS ---
+                    trade_fill_details = {"sz": 0.0, "px": 0.0}
+                    polling_attempts = 0
+                    max_polling_attempts = 10
+                    while (trade_fill_details["sz"] == 0.0 or trade_fill_details["px"] == 0.0) and polling_attempts < max_polling_attempts:
+                        time.sleep(3)
+                        trade_fill_details = get_trade_details_by_order_id(crypto_order_id)
+                        print(f"Polling for trade details... Amount: {trade_fill_details.get('sz')}, Price: {trade_fill_details.get('px')} (Attempt {polling_attempts + 1}/{max_polling_attempts})")
+                        polling_attempts += 1
+
+                    if trade_fill_details["sz"] != 0.0 and trade_fill_details["px"] != 0.0:
+                        print("Crypto order filled successfully. Fetching trade details.")
+                        trade_amount = trade_fill_details.get("sz")
+                        trade_price = trade_fill_details.get("px")
+                        fee_cost = trade_fill_details.get("fee", 0)
+                        fee_currency = trade_fill_details.get("feeCcy")
+                        total_usd_cost = usdt_balance
+                        
+                        trade_data = {
+                            "timestamp": now_sgt.strftime('%Y-%m-%d %H:%M:%S'),
+                            "trading_pair": INST_ID_CRYPTO_USDT,
+                            "side": "BUY",
+                            "trade_price": trade_price,
+                            "trade_amount": trade_amount,
+                            "total_usd_cost": total_usd_cost,
+                            "fee_cost": fee_cost,
+                            "fee_currency": fee_currency,
+                            "initial_crypto_asset_balance": initial_crypto_asset_balance,
+                            "final_crypto_asset_balance": get_specific_balance(CCY_CRYPTO_ASSET),
+                            "final_sgd_balance": final_sgd_balance
+                        }
+                        
+                        with open("trade_log.json", "w") as f:
+                            json.dump(trade_data, f, indent=4)
+                        print("Trade data saved to trade_log.json")
+                    else:
+                        print(f"Trade details not available after {max_polling_attempts} attempts. Logging will show 0s.")
+                        trade_data = {
+                            "timestamp": now_sgt.strftime('%Y-%m-%d %H:%M:%S'),
+                            "trading_pair": INST_ID_CRYPTO_USDT,
+                            "side": "BUY",
+                            "trade_price": 0.0,
+                            "trade_amount": 0.0,
+                            "total_usd_cost": usdt_balance,
+                            "fee_cost": 0.0,
+                            "fee_currency": "",
+                            "initial_crypto_asset_balance": initial_crypto_asset_balance,
+                            "final_crypto_asset_balance": get_specific_balance(CCY_CRYPTO_ASSET),
+                            "final_sgd_balance": final_sgd_balance
+                        }
+                        with open("trade_log.json", "w") as f:
+                            json.dump(trade_data, f, indent=4)
+                        print("Incomplete trade data saved to trade_log.json due to API issues.")
                 else:
                     print(f"Crypto order was not filled after {max_polling_attempts} attempts. Final status: {crypto_order_status}")
             else:
