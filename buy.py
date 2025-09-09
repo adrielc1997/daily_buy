@@ -227,7 +227,7 @@ if __name__ == "__main__":
                         print("Crypto order filled successfully. Fetching trade details.")
                         trade_amount = trade_fill_details.get("sz")
                         trade_price = trade_fill_details.get("px")
-                        fee_cost = trade_fill_details.get("fee", 0)
+                        fee_cost = abs(trade_fill_details.get("fee", 0))
                         fee_currency = trade_fill_details.get("feeCcy")
                         total_usd_cost = usdt_balance
                         
