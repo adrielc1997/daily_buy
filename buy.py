@@ -128,7 +128,7 @@ def get_order_status_and_details(instId, ord_id):
                             trade_fill = fills_data[0]
                             status_details["trade_amount"] = float(trade_fill.get("fillSz", "0"))
                             status_details["trade_price"] = float(trade_fill.get("fillPx", "0"))
-                            status_details["fee_cost"] = float(trade_fill.get("fee", "0"))
+                            status_details["fee_cost"] = abs(float(trade_fill.get("fee", "0"))) 
                             status_details["fee_currency"] = trade_fill.get("feeCcy", "")
     except Exception as e:
         print(f"Error fetching order status and details: {e}")
