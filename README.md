@@ -58,7 +58,7 @@ The bot operates through a GitHub Actions workflow (`.github/workflows/recurring
 5.  **Run Script:** Executes the `buy.py` script, which reads the configured environment variables (from GitHub Secrets) and interacts with the OKX API to place orders.
 
 ---
-
+ 
 ## ⚠️ Disclaimer
 
 This bot is provided for educational and informational purposes only. Trading cryptocurrencies involves substantial risk of loss and is not suitable for every investor. You should carefully consider your investment objectives, level of experience, and risk appetite before engaging in any trading activity. The author is not responsible for any financial losses incurred from using this bot. Always do your own research and understand the risks involved.
