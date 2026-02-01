@@ -1,4 +1,4 @@
-# Recurring Crypto Spot Buy Bot 🤖
+# Recurring Crypto Spot Buy Bot 🤖 
 
 This repository contains a Python script designed to automate recurring spot purchases of a chosen cryptocurrency on the OKX exchange. It's set up to run automatically using GitHub Actions, leveraging environment variables for secure credential management and privacy.
 
